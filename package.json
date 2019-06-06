@@ -1,0 +1,40 @@
+{
+  "name": "cli-bone",
+  "version": "1.0.0",
+  "description": "A cli tool to build cli tools FASTER",
+  "main": "cli.js",
+  "directories": {
+    "lib": "lib",
+    "man": "man",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eomm/cli-bone.git"
+  },
+  "keywords": [],
+  "author": "Manuel Spigolon <behemoth89@gmail.com> (https://github.com/Eomm)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Eomm/cli-bone/issues"
+  },
+  "homepage": "https://github.com/Eomm/cli-bone#readme",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "commist": "^1.1.0",
+    "dotenv": "^6.2.0",
+    "enquirer": "^2.3.0",
+    "file-utils-easy": "^1.1.1",
+    "node-2fa": "^1.1.2",
+    "qrcode-terminal": "^0.12.0",
+    "semver": "^5.6.0",
+    "yargs-parser": "^11.1.1"
+  },
+  "devDependencies": {
+    "standard": "^12.0.1",
+    "tap": "^12.7.0"
+  }
+}
