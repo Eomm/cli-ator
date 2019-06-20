@@ -8,6 +8,7 @@ const cli = require('./lib/index')
 const insta = cli({
   help: 'man/help.txt',
   helpArg: 'help',
+  inputArguments: { /* config */ },
   commandsHelp: '',
   commandsPath: 'command/',
   commands: [
@@ -17,7 +18,8 @@ const insta = cli({
       helpArg: 'asd',
       handler: (args)=>{
         console.log('asd');     
-      }
+      },
+      inputArguments: { /* config */ }
     }
   ]
 })
@@ -30,7 +32,7 @@ insta.on('end', (command) => {
 
 })
 
-insta.on('error', (error, cmd) => {
+insta.on('error', (error, command) => {
 
 })
 
