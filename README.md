@@ -6,19 +6,17 @@ A cli tool to build cli tools FASTER
 const cli = require('./lib/index')
 
 const insta = cli({
-  usage: 'man/help.txt',
+  log: 'info',
+  helpPath: 'man/',
+  help: 'README.md',
   helpArg: 'help',
-  inputArguments: { /* config */ },
-  commandsUsagePath: '',
-  commandsPath: 'command/',
+  autoloadPath: 'commands/'
   commands: [
     {
       command: 'demo',
-      usage: 'README.md',
-      helpArg: 'asd',
-      handler: (args)=>{
-        console.log('asd');
-      },
+      commandPath: 'command/',
+      help: 'README.md',
+      handler: (args)=>{ console.log('asd'); },
       inputArguments: { /* config */ }
     }
   ]

@@ -41,7 +41,7 @@ test('run bad events for a command', t => {
   t.plan(1)
 
   const cliInstance = CliBuilder({
-    usage: null, // this disable the default help message when not-found event is emitted
+    help: false, // this disable the default help message when not-found event is emitted
     commands: [
       {
         command: 'aCommand',
@@ -144,7 +144,7 @@ test('commands loading', t => {
 
   const executeCmd = 'cmd-a'
   const cliInstance = CliBuilder({
-    commandsPath: './test/commands/'
+    autoloadPath: './test/commands/'
   })
 
   cliInstance.on('start', (command) => { t.strictEqual(command, executeCmd) })
@@ -160,8 +160,8 @@ test('commands loading with default help', t => {
 
   const executeCmd = 'cmd-b'
   const cliInstance = CliBuilder({
-    commandsUsagePath: './test/man/',
-    commandsPath: './test/commands/'
+    helpPath: './test/man/',
+    autoloadPath: './test/commands/'
   })
 
   cliInstance.on('start', (command) => { t.strictEqual(command, executeCmd) })
@@ -177,12 +177,13 @@ test('commands loading with custom command help', t => {
 
   const executeCmd = 'cmd-a'
   const cliInstance = CliBuilder({
-    commandsUsagePath: './test/man/',
-    commandsPath: './test/commands/',
+    helpPath: './test/man/',
+    autoloadPath: './test/commands/',
     commands: [
       {
         command: executeCmd,
-        usage: 'a.txt'
+        commandPath: './test/commands/',
+        help: 'a.txt'
       }
     ]
   })
@@ -201,8 +202,8 @@ test('commands loading with custom parameter help', t => {
   const executeCmd = 'cmd-c'
   const cliInstance = CliBuilder({
     helpArg: 'aiuto',
-    commandsUsagePath: './test/man/',
-    commandsPath: './test/commands/'
+    helpPath: './test/man/',
+    autoloadPath: './test/commands/'
   })
 
   cliInstance.on('start', (command) => { t.strictEqual(command, executeCmd) })
@@ -211,4 +212,32 @@ test('commands loading with custom parameter help', t => {
   cliInstance.on('not-found', () => { t.fail('the command should not emit not found') })
 
   cliInstance.execute([executeCmd, '--aiuto'])
+})
+
+test('commands with custom parameter help', t => {
+  t.plan(1)
+
+  const cliInstance = CliBuilder({
+    helpArg: 'aiuto',
+    helpPath: './test/man/',
+    commands: [
+      {
+        command: 'one',
+        help: 'custom-help',
+        helpArg: 'one-help',
+        handler () {}
+      },
+      {
+        command: 'two',
+        help: 'custom-help',
+        handler () {}
+      }
+    ]
+  })
+
+  cliInstance.execute(['one', '--one-help'])
+  cliInstance.execute(['one', '--aiuto'])
+  cliInstance.execute(['two', '--one-help'])
+  cliInstance.execute(['two', '--aiuto'])
+  t.pass() // TODO
 })
