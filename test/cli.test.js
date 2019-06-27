@@ -1,47 +1,214 @@
 'use strict'
 
-const { test } = require('tap')
+const t = require('tap')
+const test = t.test
+const CliBuilder = require('../lib/index')
 
-const cli = require('./lib/index')
+test('run all good events for a command', t => {
+  t.plan(7)
 
-test('should apply default parameter', t => {
-  t.plan(2)
+  const aCommand = 'acommand'
 
-  const insta = cli()
-
-  insta.on('start', (command, args) => {
+  const cliInstance = CliBuilder({
+    commands: [
+      {
+        command: aCommand,
+        handler (args, logger) {
+          t.strictDeepEquals(args, { _: ['hello'] })
+          t.ok(logger, 'the logger must be set')
+          t.ok(logger.info, 'the logger.info must be set')
+          return 'world'
+        }
+      }
+    ]
   })
 
-  insta.on('end', (command) => {
+  cliInstance.on('start', (command, args) => {
+    t.strictEqual(command, aCommand)
+    t.strictDeepEquals(args, ['hello'])
   })
-
-  insta.on('error', (error) => {
+  cliInstance.on('end', (command, result) => {
+    t.strictEqual(command, aCommand)
+    t.strictEqual(result, 'world')
   })
+  cliInstance.on('error', () => { t.fail('the command should not emit error') })
+  cliInstance.on('not-found', () => { t.fail('the command should not emit not found') })
 
-  insta.execute([])
+  cliInstance.execute([aCommand, 'hello'])
 })
 
-test('should run all the events', t => {
-  t.plan(2)
+test('run bad events for a command', t => {
+  t.plan(1)
 
-  const insta = cli()
-
-  insta.on('start', (command, args) => {
+  const cliInstance = CliBuilder({
+    usage: null, // this disable the default help message when not-found event is emitted
+    commands: [
+      {
+        command: 'aCommand',
+        handler: () => { t.fail('the handler should not be called') }
+      }
+    ]
   })
 
-  insta.on('end', (command) => {
-  })
+  cliInstance.on('start', () => { t.fail('the test should not emit start') })
+  cliInstance.on('end', () => { t.fail('the test should not emit end') })
+  cliInstance.on('error', () => { t.fail('the command should not emit error') })
+  cliInstance.on('not-found', (args) => { t.strictDeepEquals(args, commandArgs) })
 
-  insta.on('error', (error) => {
-  })
-
-  insta.execute([])
-  insta.execute([])
+  const commandArgs = ['bad', 'hello']
+  cliInstance.execute(commandArgs)
 })
 
-test('should throw if the execute parameter is not an array', t => {
+test('promise resolve handler', t => {
+  t.plan(4)
+
+  const aCommand = 'promise-cmd'
+  const cliInstance = CliBuilder({
+    commands: [
+      {
+        command: aCommand,
+        handler () { return Promise.resolve(42) }
+      }
+    ]
+  })
+
+  cliInstance.on('start', (command, args) => {
+    t.strictEqual(command, aCommand)
+    t.strictDeepEquals(args, [])
+  })
+  cliInstance.on('end', (command, result) => {
+    t.strictEqual(command, aCommand)
+    t.strictEqual(result, 42)
+  })
+  cliInstance.on('error', () => { t.fail('the command should not emit error') })
+  cliInstance.on('not-found', () => { t.fail('the command should not emit not found') })
+
+  cliInstance.execute([aCommand])
+})
+
+test('promise error handler', t => {
+  t.plan(3)
+
+  const aCommand = 'promise-cmd'
+  const cliInstance = CliBuilder({
+    commands: [
+      {
+        command: aCommand,
+        handler () { return Promise.reject(new Error('my error')) }
+      }
+    ]
+  })
+
+  cliInstance.on('start', (command, args) => {
+    t.strictEqual(command, aCommand)
+    t.strictDeepEquals(args, [])
+  })
+  cliInstance.on('end', () => { t.fail('the command should not emit end') })
+  cliInstance.on('error', (err) => { t.strictEqual(err.message, 'my error') })
+  cliInstance.on('not-found', () => { t.fail('the command should not emit not found') })
+
+  cliInstance.execute([aCommand])
+})
+
+test('handling error', t => {
+  t.plan(3)
+
+  const aCommand = 'handler-cmd'
+  const cliInstance = CliBuilder({
+    commands: [
+      {
+        command: aCommand,
+        handler () { throw new Error('sync error') }
+      }
+    ]
+  })
+
+  cliInstance.on('start', (command, args) => {
+    t.strictEqual(command, aCommand)
+    t.strictDeepEquals(args, [])
+  })
+  cliInstance.on('end', () => { t.fail('the command should not emit end') })
+  cliInstance.on('error', (err) => { t.strictEqual(err.message, 'sync error') })
+  cliInstance.on('not-found', () => { t.fail('the command should not emit not found') })
+
+  cliInstance.execute([aCommand])
+})
+
+/** **************************************** */
+/** **************************************** */
+/** **************************************** */
+/** **************************************** */
+
+test('commands loading', t => {
   t.plan(2)
 
-  const insta = cli()
-  insta.execute([])
+  const executeCmd = 'cmd-a'
+  const cliInstance = CliBuilder({
+    commandsPath: './test/commands/'
+  })
+
+  cliInstance.on('start', (command) => { t.strictEqual(command, executeCmd) })
+  cliInstance.on('end', (command) => { t.strictEqual(command, executeCmd) })
+  cliInstance.on('error', () => { t.fail('the command should not emit error') })
+  cliInstance.on('not-found', () => { t.fail('the command should not emit not found') })
+
+  cliInstance.execute([executeCmd])
+})
+
+test('commands loading with default help', t => {
+  t.plan(2)
+
+  const executeCmd = 'cmd-b'
+  const cliInstance = CliBuilder({
+    commandsUsagePath: './test/man/',
+    commandsPath: './test/commands/'
+  })
+
+  cliInstance.on('start', (command) => { t.strictEqual(command, executeCmd) })
+  cliInstance.on('end', (command) => { t.strictEqual(command, executeCmd) })
+  cliInstance.on('error', () => { t.fail('the command should not emit error') })
+  cliInstance.on('not-found', () => { t.fail('the command should not emit not found') })
+
+  cliInstance.execute([executeCmd, '--help'])
+})
+
+test('commands loading with custom command help', t => {
+  t.plan(2)
+
+  const executeCmd = 'cmd-a'
+  const cliInstance = CliBuilder({
+    commandsUsagePath: './test/man/',
+    commandsPath: './test/commands/',
+    commands: [
+      {
+        command: executeCmd,
+        usage: 'a.txt'
+      }
+    ]
+  })
+
+  cliInstance.on('start', (command) => { t.strictEqual(command, executeCmd) })
+  cliInstance.on('end', (command) => { t.strictEqual(command, executeCmd) })
+  cliInstance.on('error', () => { t.fail('the command should not emit error') })
+  cliInstance.on('not-found', () => { t.fail('the command should not emit not found') })
+
+  cliInstance.execute([executeCmd, '--help'])
+})
+
+test('commands loading with custom parameter help', t => {
+  t.plan(2)
+
+  const executeCmd = 'cmd-c'
+  const cliInstance = CliBuilder({
+    helpArg: 'aiuto',
+    commandsUsagePath: './test/man/',
+    commandsPath: './test/commands/'
+  })
+
+  cliInstance.on('start', (command) => { t.strictEqual(command, executeCmd) })
+  cliInstance.on('end', (command) => { t.strictEqual(command, executeCmd) })
+  cliInstance.on('error', () => { t.fail('the command should not emit error') })
+  cliInstance.on('not-found', () => { t.fail('the command should not emit not found') })
+
+  cliInstance.execute([executeCmd, '--aiuto'])
 })
