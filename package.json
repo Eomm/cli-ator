@@ -1,0 +1,45 @@
+{
+  "name": "cli-ator",
+  "version": "0.0.1",
+  "description": "A cli tool to build cli tools FASTER",
+  "main": "cli.js",
+  "directories": {
+    "lib": "lib",
+    "man": "man",
+    "test": "test"
+  },
+  "scripts": {
+    "lint": "standard --verbose",
+    "lint:fix": "standard --fix",
+    "test": "tap -J --cov test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eomm/cli-ator.git"
+  },
+  "keywords": [],
+  "author": "Manuel Spigolon <behemoth89@gmail.com> (https://github.com/Eomm)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Eomm/cli-ator/issues"
+  },
+  "homepage": "https://github.com/Eomm/cli-ator#readme",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "commist": "^1.1.0",
+    "dotenv": "^6.2.0",
+    "enquirer": "^2.3.0",
+    "file-utils-easy": "^1.1.1",
+    "node-2fa": "^1.1.2",
+    "pino": "^5.12.6",
+    "pino-pretty": "^3.1.0",
+    "qrcode-terminal": "^0.12.0",
+    "semver": "^5.6.0",
+    "yargs-parser": "^11.1.1"
+  },
+  "devDependencies": {
+    "pre-commit": "^1.2.2",
+    "standard": "^12.0.1",
+    "tap": "^12.7.0"
+  }
+}
