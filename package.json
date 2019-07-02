@@ -1,5 +1,5 @@
 {
-  "name": "cli-bone",
+  "name": "cli-ator",
   "version": "0.0.1",
   "description": "A cli tool to build cli tools FASTER",
   "main": "cli.js",
@@ -15,15 +15,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Eomm/cli-bone.git"
+    "url": "git+https://github.com/Eomm/cli-ator.git"
   },
   "keywords": [],
   "author": "Manuel Spigolon <behemoth89@gmail.com> (https://github.com/Eomm)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Eomm/cli-bone/issues"
+    "url": "https://github.com/Eomm/cli-ator/issues"
   },
-  "homepage": "https://github.com/Eomm/cli-bone#readme",
+  "homepage": "https://github.com/Eomm/cli-ator#readme",
   "dependencies": {
     "chalk": "^2.4.2",
     "commist": "^1.1.0",
