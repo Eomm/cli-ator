@@ -134,17 +134,33 @@ test('handling error', t => {
   cliInstance.execute([aCommand])
 })
 
-/** **************************************** */
-/** **************************************** */
-/** **************************************** */
-/** **************************************** */
-
 test('commands loading', t => {
   t.plan(2)
 
   const executeCmd = 'cmd-a'
   const cliInstance = CliBuilder({
     autoloadPath: './test/commands/'
+  })
+
+  cliInstance.on('start', (command) => { t.strictEqual(command, executeCmd) })
+  cliInstance.on('end', (command) => { t.strictEqual(command, executeCmd) })
+  cliInstance.on('error', () => { t.fail('the command should not emit error') })
+  cliInstance.on('not-found', () => { t.fail('the command should not emit not found') })
+
+  cliInstance.execute([executeCmd])
+})
+
+test('command requiring', t => {
+  t.plan(2)
+
+  const executeCmd = 'cmd-a'
+  const cliInstance = CliBuilder({
+    commands: [
+      {
+        command: executeCmd,
+        commandPath: './test/commands'
+      }
+    ]
   })
 
   cliInstance.on('start', (command) => { t.strictEqual(command, executeCmd) })
@@ -197,13 +213,15 @@ test('commands loading with custom command help', t => {
 })
 
 test('commands loading with custom parameter help', t => {
-  t.plan(2)
+  t.plan(3)
 
   const executeCmd = 'cmd-c'
   const cliInstance = CliBuilder({
+    printer (helpMsg) { t.strictEqual(helpMsg, 'help for command c') },
     helpArg: 'aiuto',
     helpPath: './test/man/',
-    autoloadPath: './test/commands/'
+    autoloadPath: './test/commands/',
+    handler () { t.fail('the handler should be called when help is requested') }
   })
 
   cliInstance.on('start', (command) => { t.strictEqual(command, executeCmd) })
@@ -215,9 +233,23 @@ test('commands loading with custom parameter help', t => {
 })
 
 test('commands with custom parameter help', t => {
-  t.plan(1)
+  t.plan(4)
 
+  let order = 0
   const cliInstance = CliBuilder({
+    printer (helpMsg) {
+      switch (order) {
+        case 0:
+          t.strictEqual(helpMsg, 'help custom manual for cli when the command is not found')
+          break
+        case 1:
+          t.strictEqual(helpMsg, 'help for command a')
+          break
+        default:
+          t.fail('the printer must be called twice')
+      }
+      order++
+    },
     helpArg: 'aiuto',
     helpPath: './test/man/',
     commands: [
@@ -225,12 +257,12 @@ test('commands with custom parameter help', t => {
         command: 'one',
         help: 'custom-help',
         helpArg: 'one-help',
-        handler () {}
+        handler () { t.strictEqual(order, 1, 'the handler should be called when one --aiuto') }
       },
       {
         command: 'two',
-        help: 'custom-help',
-        handler () {}
+        help: 'a.txt',
+        handler () { t.strictEqual(order, 1, 'the handler should be called when two --one-help') }
       }
     ]
   })
@@ -239,5 +271,9 @@ test('commands with custom parameter help', t => {
   cliInstance.execute(['one', '--aiuto'])
   cliInstance.execute(['two', '--one-help'])
   cliInstance.execute(['two', '--aiuto'])
-  t.pass() // TODO
+})
+
+test('error no param', t => {
+  t.plan(1)
+  t.throws(() => { CliBuilder() }, 'missing options parameter')
 })

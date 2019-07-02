@@ -14,6 +14,7 @@ npm i cli-ator
 const cli = require('cli-ator')
 
 const insta = cli({
+  printer: console.log, // default
   log: 'info',
   helpPath: 'man/',
   help: 'README.md',

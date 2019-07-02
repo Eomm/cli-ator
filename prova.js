@@ -1,28 +1,7 @@
 
 const cli = require('./lib/index')
 
-const insta = cli({
-  help: 'help',
-  helpArg: 'help',
-  commandsHelp: 'provaaman',
-  commandsPath: 'provaa/',
-  commands: [
-    {
-      command: 'demo',
-      help: 'comcom',
-      // helpArg: 'asd',
-      handler: (args) => {
-        console.log('asd')
-      },
-      inputArguments: {
-        boolean: ['help'],
-        alias: {
-          help: ['h']
-        }
-      }
-    }
-  ]
-})
+const insta = cli({})
 
 insta.on('load', (command, args) => {
   console.log('load', command)

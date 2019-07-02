@@ -1,6 +1,6 @@
 {
   "name": "cli-bone",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A cli tool to build cli tools FASTER",
   "main": "cli.js",
   "directories": {
