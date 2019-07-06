@@ -2,7 +2,7 @@
   "name": "cli-ator",
   "version": "0.1.0",
   "description": "A cli tool to build cli tools FASTER",
-  "main": "cli.js",
+  "main": "lib/index.js",
   "directories": {
     "lib": "lib",
     "man": "man",
